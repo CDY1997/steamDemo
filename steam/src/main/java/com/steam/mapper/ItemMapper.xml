@@ -1,0 +1,114 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.steam.mapper.ItemMapper">
+	
+	<!-- 查询全部  -->
+	<select id="selectAll" resultType="itemInfo">
+		SELECT * 
+		FROM item_info 
+		ORDER BY item_release_date DESC
+	</select>
+	
+	<!-- 根据vo查询 -->
+	<select id="selectItemInfoByVo" parameterType="ItemInfoVo" resultType="ItemInfo">
+		SELECT *
+		FROM item_info
+		<where>
+			<if test="item_name!=null and item_name!=''">
+				AND item_name LIKE "%"#{item_name}"%"
+			</if>
+		</where>
+		<choose>
+			<when test="sort_name!=null and sort_name!='' and sort_rule!=null and sort_rule!=''">
+				ORDER BY ${sort_name} ${sort_rule}
+			</when>
+			<otherwise>
+				ORDER BY item_release_date DESC
+			</otherwise>
+		</choose>
+	</select>
+	
+	<!-- 根据词典类型id获取词典对象列表 -->
+	<select id="selectSysDicByTypeId" parameterType="String" resultType="SysDict">
+		SELECT * 
+		FROM sys_dict
+		WHERE dict_type_id = #{id}
+	</select>
+	
+	<!-- 新增游戏 -->
+	<insert id="save" parameterType="ItemInfo">
+		INSERT INTO item_info
+		VALUES(
+			#{item_id},
+			#{item_name},
+			#{item_tagids},
+			#{item_platform},
+			#{item_discount},
+			#{item_original_price},
+			#{item_cap_image},
+			#{item_release_date},
+			#{is_hot},
+			#{is_hot_sale},
+			#{is_free},
+			#{is_specials},
+			#{is_upcoming},
+			#{is_new},
+			#{is_enable}
+		)
+	</insert>
+	
+	<select id="selectItemInfoById" parameterType="String" resultType="ItemInfo">
+		SELECT *
+		FROM item_info
+		WHERE item_id = #{id}
+	</select>
+	
+	<update id="update" parameterType="ItemInfo">
+		UPDATE item_info
+		<set>
+			<if test="item_name!=null and item_name!=''">item_name = #{item_name},</if>
+			<if test="item_tagids!=null and item_tagids!=''">item_tagids = #{item_tagids},</if>
+			<if test="item_platform!=null and item_platform!=''">item_platform = #{item_platform},</if>
+			<if test="item_discount!=null">item_discount = #{item_discount},</if>
+			<if test="item_original_price!=null">item_original_price = #{item_original_price},</if>
+			<if test="item_cap_image!=null and item_cap_image!=''">item_cap_image = #{item_cap_image},</if>
+			<if test="item_release_date!=null and item_release_date!=''">item_release_date = #{item_release_date},</if>
+<!-- 			<if test="is_hot!=null and is_hot!=''">is_hot = #{is_hot},</if> -->
+<!-- 			<if test="is_hot_sale!=null and is_hot_sale!=''">is_hot_sale = #{is_hot_sale},</if> -->
+<!-- 			<if test="is_free!=null and is_free!=''">is_free = #{is_free},</if> -->
+<!-- 			<if test="is_specials!=null and is_specials!=''">is_specials = #{is_specials},</if> -->
+<!-- 			<if test="is_upcoming!=null and is_upcoming!=''">is_upcoming = #{is_upcoming},</if> -->
+<!-- 			<if test="is_new!=null and is_new!=''">is_new = #{is_new},</if> -->
+<!-- 			<if test="is_enable!=null and is_enable!=''">is_enable = #{is_enable},</if> -->
+
+
+			is_hot = #{is_hot},
+			is_hot_sale = #{is_hot_sale},
+			is_free = #{is_free},
+		    is_specials = #{is_specials},
+			is_upcoming = #{is_upcoming},
+			is_new = #{is_new},
+			is_enable = #{is_enable}
+		</set>
+		WHERE item_id = #{item_id}
+	</update>
+	
+	<update id="deleteByLogic">
+		UPDATE item_info
+		<set>
+			is_enable = #{enable}
+		</set>
+		WHERE item_id = #{id}
+	</update>
+	
+	<!-- //根据标志位名称查询列表排序 -->
+	<select id="selectItemInfoSortByFlag" resultType="ItemInfo">
+		SELECT * FROM item_info
+		WHERE is_enable = '1'
+		ORDER BY ${name} DESC,
+				 item_release_date DESC
+		LIMIT 0,#{num}
+	</select>
+</mapper>
